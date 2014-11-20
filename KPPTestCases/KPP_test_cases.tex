@@ -29,6 +29,12 @@ This document is to specify a set of one-dimensional (column) test cases to eval
 
 \chapter{Wind-Stress with Positive Surface Buoyancy Forcing (WSwPSBF)}
 
+\section{Constants}
+
+$g=9.80616 \ m \ s^{-2}$.
+
+$f=1.0 \times 10^{-4} \ s^{-1}$.
+
 \section{Equation of State}
 Linear EOS with
 \begin{equation}
@@ -69,16 +75,15 @@ where
 \end{align*}
 
 Buoyancy forcing:
-Define buoyancy as
-\begin{equation}
-b(x,y,z,t) = -g \ \frac{\rho-\rho_0}{\rho_0}
-\end{equation}
-where $g=9.80616 \ m \ s^{-2}$. The forcing of buoyancy at ocean surface is specified as
+
+The forcing of buoyancy at ocean surface is implement through a SST restoring using a piston velocity into the ocean.
 
 \begin{equation}
-\frac{d}{dt} \left[ b(z=0) \right] = \left( \frac{w_p}{\Delta z_1} \right) g \ \alpha \left(T - T_{restore} \right) / \rho_0
+\frac{d T}{dt} = - \left( \frac{w_p}{\Delta z_1} \right) \left(T - T_{restore} \right)
 \end{equation}
-where $T_{restore}=T_s+10\ ^{\circ}C$ and $w_p = 0.5 \;m\;day^{-1}$ is a piston velocity.
+where $T_{restore}=T_s+10\ ^{\circ}C$ and $w_p = 0.5 \;m\;day^{-1}$.
+
+Salinity remains constant throughout the simulation.
 
 \section{Model Configuration}
 \subsection{Reference Configuration}

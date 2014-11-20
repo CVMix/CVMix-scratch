@@ -52,15 +52,15 @@ where
 \section{Initial Conditions}
 
 \begin{align*}
-&T(z) = T_b + (T_s - T_b)z  \\
+&T(z) = T_s + \left( \frac{\delta T}{\delta z} \right) z  \\
 &S(z) = S_0 \\
 &{\bf u}(z) = 0
 \end{align*}
 where
 \begin{align*}
-&T_b=5.0 \ ^{\circ}C \\
 &T_s=15.0 \ ^{\circ}C \\
-&-1000.0 \ m <z<0
+&\frac{\delta T}{\delta z}=0.01 \ ^{\circ}C \ m^{-1} \\
+&-400.0 \ m <z<0
 \end{align*}
 \section{Forcing}
 

@@ -35,6 +35,16 @@ $g=9.80616 \ m \ s^{-2}$.
 
 $f=1.0 \times 10^{-4} \ s^{-1}$.
 
+\section{CVMix Configuration}
+
+Critical Richardson numbers set to $Ri_c = 0.3$
+
+Background viscosity and diffusivity set to $\nu_b = 0~m^2 s^{-1}$.
+
+KPP mixed layer interpolation type set to ``cubic''.
+
+Question: Which CVMix mixing parameterization modules are turned on?
+
 \section{Equation of State}
 Linear EOS with
 \begin{equation}
@@ -74,24 +84,25 @@ where
 &\tau_y=0
 \end{align*}
 
-Buoyancy forcing:
+Three different applications of surface buoyancy forcing are defined:
 
-The forcing of buoyancy at ocean surface is implement through a SST restoring using a piston velocity into the ocean.
+WSwPSBF.A is no buoyancy forcing: $\frac{d T}{dt} =0$
 
-\begin{equation}
-\frac{d T}{dt} = - \left( \frac{w_p}{\Delta z_1} \right) \left(T - T_{restore} \right)
-\end{equation}
+WSwPSBF.B is fixed temperature flux: $\frac{d T}{dt} = 100.0$~W~m$^{-2}$
+
+WSwPSBF.C is temperature restoring of the form $\frac{d T}{dt} = - \left( \frac{w_p}{\Delta z_1} \right) \left(T - T_{restore} \right)$
+
 where $T_{restore}=T_s+10\ ^{\circ}C$ and $w_p = 0.5 \;m\;day^{-1}$.
 
 Salinity remains constant throughout the simulation.
 
 \section{Model Configuration}
 \subsection{Reference Configuration}
- $0<t<15 \ days$
+ $0<t<15~days$
 
- $\Delta t = 20 mins$.
+ $\Delta t = 20~mins$
 
- $\Delta z(k) = 1.0 m$. (Uniform)
+ $\Delta z(k) = 1.0~m$ (uniform), so $1 \le k \le N=400$.
  
 
 \subsection{Operational Configuration}
@@ -105,21 +116,26 @@ see Table \ref{table:metricsShear}
 \begin{table}[htdp]
 \caption{First output at $t=0$. Last output at $t=15 \ days$, $1<k<N$, $kI=N+1$}
 \begin{center}
-\begin{tabular}{c c c c}
+\begin{tabular}{c c c c c}
 \hline
-Quantity & Name & Units & Comments \\
+Quantity & Name & Units & Output Freq & Comments \\
 \hline
-Mixed-layer depth & $OBL$ & $m$ & output OBL at 1 hourly \\
-Position of layer interfaces & $z_I$ & $m$ & output $z_I(kI)$ hourly\\
-Velocity & $U_x$ & $m \ s^{-1}$ & output $U_x(k)$ hourly\\
-other & $other$ & $other$ & other\\
+Boundary-layer depth & $OBL$ & $m$ & $dt$ &  \\
+Sea-surface temperature & $SST$ & $^{\circ}C$ & $dt$ & $SST=T(k=1)$\\
+Surface buoyancy flux & ? & $m^2 \ s^{-3}$ & dt & \\
+Position of layer interfaces & $z_I$ & $m$ & $dt$ &  \\
+Zonal velocity & $U_x$ & $m \ s^{-1}$ & $dt$ &  all vertical levels \\
+Meridional velocity & $U_y$ & $m \ s^{-1}$ & $dt$ &  all vertical levels \\
+Non-local KPP transport & $?$ & $??$ & $dt$ & all vertical levels \\
+other & $other$ & $other$ & other & other\\
 \hline
 \end{tabular}
 \end{center}
 \label{table:metricsShear}
 \end{table}
 
-
+\section{Comments and Caveats}
+Results will likely be sensitive to how surface layer is modeled.
 
 \section{Results}
 \subsection{LANL MPAS-Ocean}

@@ -86,11 +86,11 @@ where
 
 Three different applications of surface buoyancy forcing are defined:
 
-WSwPSBF.A is no buoyancy forcing: $\frac{d T}{dt} =0$
+WSwPSBF.A is no buoyancy forcing: $Q_T =0$
 
-WSwPSBF.B is fixed temperature flux: $\frac{d T}{dt} = 100.0$~W~m$^{-2}$
+WSwPSBF.B is fixed temperature flux: $Q_T = 100.0$~W~m$^{-2}$
 
-WSwPSBF.C is temperature restoring of the form $\frac{d T}{dt} = - \left( \frac{w_p}{\Delta z_1} \right) \left(T - T_{restore} \right)$
+WSwPSBF.C is heat flux of the form $Q_T = \rho_o \, c_p \, w_p \left( T - T_{restore}\right)$ so that the top layer temperature is restored with the form $\partial_t T + \ldots = - \left( \frac{w_p}{\Delta z_1} \right) \left(T - T_{restore} \right)$
 
 where $T_{restore}=T_s+10\ ^{\circ}C$ and $w_p = 0.5 \;m\;day^{-1}$.
 

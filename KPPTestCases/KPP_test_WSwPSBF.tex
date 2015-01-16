@@ -1,0 +1,341 @@
+\chapter{Wind-stress with positive surface buoyancy forcing
+   (WSwPSBF)}
+\label{chapter:WSwPSBF}
+
+ These tests are configured with a wind stress providing mechanical
+ mixing that is countered by generally non-negative surface buoyancy
+ forcing realized by a heat flux.  Since the buoyancy forcing is
+ generally positive (stabilizing), these tests only exercise the local
+ downgradient diffusive portion of KPP.  In this way, the tests are
+ very simple.  In turn, the tests provide a useful means to ensure
+ that implementation details are consistent across models making use
+ of CVMix/KPP.
+
+
+\section{Physics of the experiments}
+
+There are no lateral gradients in these column-tests.  Hence,
+evolution of velocity and tracer are one-dimensional in the vertical.
+We generally start the velocity field at zero, so that its evolution
+is initiated by surface stresses.  Likewise, if tracers have a uniform
+initial profile, their evolution is initiated by surface heat or
+salt/water fluxes.  Once a nontrivial vertical profile is established,
+either through boundary fluxes or initial profiles, then evolution is
+impacted by local (downgradient diffusion) and non-local aspects of
+KPP.
+
+In these test cases, buoyancy is forced at the surface via a surface
+heat flux.  To help develop notation, we express the finite-volume
+heat equation acting on the top grid cell as
+\begin{equation}
+  \mbox{C}_{\mbox{\footnotesize p}} \left(   \frac{\partial  \, (\theta \, \rho \, \mathrm{d}z )}{\partial t}  \right) =  
+  Q + F_{\mbox{\footnotesize diffusive}} + F_{\mbox{\footnotesize non-local}}.
+\label{eq:surface-heat-equation}
+\end{equation}
+The following terms appear in this equation.
+\begin{itemize}
+\item The grid cell thickness, $\mathrm{d}z$, is generally a function
+  of time, as in MPAS and MOM, in which case we keep it inside the
+  time derivative to ensure a flux-form budget.  If the cell thickness
+  is static, as in POP, then it can be removed from the time
+  derivative.
+
+\item The {\it in situ} density factor, $\rho$, is replaced by the
+  constant reference density $\rho_{0}$ when making the Boussinesq
+  approximation.
+
+\item The surface boundary heat flux, $Q$, crosses the top of the
+  surface cell.  It is specified in these tests according to the
+  details in Table \ref{table:kpp-model-configuration} discussed in
+  Section \ref{section:configuration-details-WSwPSBF}.
+
+\item The diffusive heat flux, $F_{\mbox{\footnotesize diffusive}}$,
+  arises from the local downgradient diffusive portion of the KPP
+  scheme.  This flux passes through the bottom face of the top grid
+  cell.
+
+\item The non-local KPP term, $F_{\mbox{\footnotesize non-local}}$,
+  vanishes in these tests since we are only considering positive
+  buoyancy forcing.
+
+\end{itemize}
+
+
+\section{Configuration details}
+\label{section:configuration-details-WSwPSBF}
+
+We here provide configuration details.  Note that each ocean model
+makes the Boussinesq approximation for these tests.
+
+
+\subsection{Vertical grids and time steps}
+
+We consider three configurations for each ocean model (MOM6, MPAS, and
+POP).  Two tests are identical across the models, based on uniform
+vertical grids of $\Delta z = 1~\mbox{m}$ and $\Delta z =
+10~\mbox{m}$.  These tests allow us to examine differences arising
+from coarsening the vertical resolution.  The third test is unique to
+each ocean model, and is based on a global configuration that uses
+non-uniform grid spacing.
+
+%%%%%%%%%%%%%%%%%%%% model configurations%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[h!t]
+\centering{
+\begin{tabular}{|c|c|c|c|}
+\hline 
+{\sc model}                        & {\sc vertical grid spacing/grid points}    & {\sc bottom depth}   &    {\sc time step (secs)} \\
+\hline uniform-1                 & $\Delta z = 1~\mbox{m}$                         & $400~\mbox{m}$      & $\Delta t = 20 * 60$     \\                               
+\hline uniform-10               & $\Delta z = 10~\mbox{m}$                       & $400~\mbox{m}$      & $\Delta t = 20 * 60$      \\                               
+\hline MOM6-CM4             &  75                                                           & $6000~\mbox{m}$    & $\Delta t = 30 * 60$      \\
+\hline MPAS-ACME             &  ??                                                             & ??                            & $\Delta t = ??$             \\
+\hline POP-CESM                & ??                                                            & ??                              & $\Delta t = ??$             \\
+\hline
+\end{tabular}
+}
+\caption{Model vertical grid spacing, bottom depth,  and time steps for the CVMix column tests.}
+\label{table:kpp-model-configuration}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Basic constants and linear equation of state}
+
+The basic constants used for the tests are given by the gravitational
+acceleration, the Coriolis parameter, and the heat capacity, each of
+which are global constants.
+\begin{subequations}
+\begin{align}
+ g &= 9.80616~\mbox{m}~\mbox{s}^{-2}
+ \\
+ f &= 1.0 \times 10^{-4}~\mbox{s}^{-1}
+ \\
+\mbox{C}_{\mbox{\footnotesize p}} &= 3992~\mbox{J}~\mbox{kg}^{-1}~\mbox{K}^{-1}. 
+\end{align}
+\end{subequations}
+We offer two comments here.
+\begin{itemize}
+ \item A non-zero Coriolis parameter allows for the introduction of
+inertial oscillations as part of the vertical column test cases.
+Indeed, we generally see inertial oscillations as a prominent feature
+in these tests.   
+\item The heat capacity is needed to convert from a heat flux to a
+  temperature flux.  The chosen value accords with four significant
+  digits of the \cite{TEOS2010} value.
+
+\end{itemize}
+
+The equation of state for density is linear, and a function only of
+temperature and salinity 
+\begin{equation}
+\rho = \rho_0 - \alpha \, (\theta - \theta_0) + \beta \, (S-S_0).
+\label{eq:linear-eos}
+\end{equation}
+The equation of state constants are given by 
+\begin{subequations}
+\begin{align}
+ \rho_0 &= 1025.022~\mbox{kg}~\mbox{m}^{-3}
+\label{eq:linear-eos-paramA}
+ \\
+\alpha &= 2.55 \times 10^{-1}~\mbox{kg}~\mbox{m}^{-3}~^{\circ}C^{-1}
+\\
+\beta &= 7.64\times10^{-1}~\mbox{kg}~\mbox{m}^{-3}~\mbox{ppt}^{-1}
+ \\
+T_0  &=  19^{\circ}C 
+\\
+S_0 &=  35~\mbox{ppt}.
+\label{eq:linear-eos-paramB}
+\end{align}
+\end{subequations}
+
+
+\subsection{Initial Conditions}
+
+We start the velocity field with zero value throughout the column
+\begin{equation}
+ {\bf v} = 0.
+\end{equation}
+Surface stress will impose a vertical gradient in velocity, on which
+the KPP viscosity will transfer momentum vertically.  Salinity is
+initialized to the constant value
+\begin{equation}
+ S = S_{0}.
+\end{equation}
+There are no salt fluxes through the boundaries, so that salinity
+should remain constant throughout these tests.  The temperature is
+initialized with a linear vertical stratification
+\begin{subequations}
+\begin{align}
+ \theta(z) &= \theta_s + \Gamma \, z  
+\\
+ \theta_s &= 15.0^{\circ}C 
+\\
+ \Gamma  &= 0.01^{\circ}C~\mbox{m}^{-1}. 
+\end{align}
+\end{subequations}
+Even without a surface buoyancy flux, temperature will evolve in the
+presence of a nonzero diffusivity.  With the linear equation of state
+(\ref{eq:linear-eos}) and parameters
+(\ref{eq:linear-eos-paramA})-(\ref{eq:linear-eos-paramB}), the initial
+vertical temperature stratification leads to an initial buoyancy
+frequency
+\begin{subequations}
+\begin{align}
+ N &= \left(-\frac{g}{\rho_{0}} \frac{\partial \rho}{\partial z} \right)^{1/2}
+ \\
+   &= \left( \frac{g \, \alpha \, \Gamma}{\rho_{0}} \right)^{1/2}
+\\
+  &= 4.94 \, \times \, 10^{-3}~\mbox{s}^{-1}
+ \\
+ &= 49.4 \, f.
+\end{align}
+\end{subequations}
+
+
+\subsection{Boundary conditions}
+
+We assume the following boundary conditions.
+\begin{itemize}
+
+\item Zero buoyancy flux passes through the ocean bottom.
+
+\item Constant zonal wind stress forces the surface ocean, $\tau^{x} =
+  0.1~\mbox{N}~\mbox{m}^{-2}$, along with a zero meridional stress,
+  $\tau^{y} = 0$.
+
+\item Specification of the surface heat flux, $Q$ (see equation
+  (\ref{eq:surface-heat-equation})), distinguishes the following three
+  experiments (see Table \ref{table:kpp-test-case-WSwPSBF}).
+
+\begin{itemize} 
+
+\item {\sc WSwPSBF.A} uses zero surface heat flux, $Q=0$.
+
+\item {\sc WSwPSBF.B} uses a constant surface heat flux,
+  $Q=100~\mbox{W}~\mbox{m}^{-2}$.
+
+\item {\sc WSwPSBF.C} uses a restoring surface boundary condition
+  given by
+\begin{equation}
+ Q =  \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}} \, (\theta - \theta_{\mbox{\footnotesize restore}} ),
+\end{equation}
+ where the restoring temperature is 
+\begin{equation}
+\theta_{\mbox{\footnotesize restore}}  = \theta_s + 10^{\circ}C,
+\end{equation}
+ and the piston velocity is 
+\begin{equation}
+  w_{\mbox{\footnotesize piston}} = 0.5~\mbox{m}~\mbox{day}^{-1}. 
+\end{equation}
+With these parameters, the restoring boundary condition produces a
+heat flux, per degree temperature deviation $\theta -
+\theta_{\mbox{\footnotesize restore}}$, given by
+\begin{subequations}
+\begin{align}
+ \frac{Q}{(\theta - \theta_{\mbox{\footnotesize restore}} )} &= \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}}
+ \\
+ &= 23.68~\mbox{W}~\mbox{m}^{-2}~\mbox{K}^{-1}.  
+\end{align}
+\end{subequations}
+That is, with $\theta - \theta_{\mbox{\footnotesize restore}} =
+1~\mbox{K}$, we have $Q = 23.68~\mbox{W}~\mbox{m}^{-2}$.  This heat
+flux will always be non-negative, causing the ocean temperature to
+initially increase quite rapidly as driven by
+$\theta_{\mbox{\footnotesize restore}} - \theta_s = 10^{\circ}C$, and
+with a decreasing (still non-negative) heat flux as the surface
+temperature approaches $\theta_{\mbox{\footnotesize restore}}$.
+
+\end{itemize} 
+
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%% boundary heat fluxes%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table*}[h!t]
+\centering{
+\begin{tabular}{|c|c|}
+\hline 
+{\sc test case name}             & {\sc heat flux} ($Q$)      \\
+\hline {\sc WSwPSBF.A}          & 0                                                                                  \\
+\hline {\sc WSwPSBF.B}          & $Q = 100~\mbox{W}~\mbox{m}^{-2}$                        \\
+\hline {\sc WSwPSBF.C}           & $Q = \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}} \, (\theta - \theta_{\mbox{\footnotesize restore}} )$   \\
+\hline
+\end{tabular}
+}
+\caption{
+  Surface boundary heat flux formulations for the three test cases.  
+  The third test considers a restoring boundary condition
+  for the top model grid cell, with restoring temperature given by  
+  $\theta_{\mbox{\footnotesize restore}} 
+  = \theta_s + 10^{\circ}C$, and the piston velocity set to 
+  $w_{\mbox{\footnotesize piston}} = 0.5~\mbox{m}~\mbox{day}^{-1}$.}
+\label{table:kpp-test-case-WSwPSBF}
+\end{table*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{CVMix/KPP parameter settings}
+
+The following KPP parameters are set for these tests. 
+\begin{itemize}
+
+\item Critical Richardson number is set to the standard value $\mbox{Ri}_{\mbox{\footnotesize c}} = 0.3$.
+
+\item The background viscosity and diffusivity are both set to zero,
+  so that the only means of diffusing tracer or velocity arises from
+  the KPP diffusivity.
+
+\item The KPP boundary layer interpolation type is set to {\tt cubic}.
+
+\item The surface layer thickness occupies 10\% of the KPP boundary
+  layer depth.  This thickness generally spans more than just the
+  surface grid cell, especially when $\Delta z = 1~\mbox{m}$.  If one
+  instead assumes the surface layer is just the surface grid cell,
+  then simulation results will differ from those presented here.
+
+\item The buoyancy forcing is positive, so the non-local transport
+  vanishes.  Hence, there is no need to detail associated choices for
+  the non-local transport.
+
+\end{itemize}
+
+
+\section{Evaluation diagnostics}
+
+We aim to evaluate the simulation in various ways, both to expose the
+physical processes and to allow for detailed comparison across a suite
+of models implementing the CVMix/KPP scheme.  We list certain of the
+diagnostics in Table \ref{table:metricsShear} of use for this purpose.
+Ideally, all models will produce the same results.
+
+\begin{table}[htdp]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+{\sc quantity}                                 & {\sc name}        & {\sc units}                              & {\sc output sampling}     & {\sc comments} \\
+\hline
+surface boundary-layer depth          & $OBL$              & $\mbox{m}$                            & $\Delta t$                       &  \\
+\hline 
+sea-surface temperature                 & $SST$               & $^{\circ}C$                                & $\Delta t$                       & $SST=T(k=1)$\\
+\hline 
+surface buoyancy flux                     & $B_{f}$              & $\mbox{m}^2~\mbox{s}^{-3}$   &$\Delta t$                        & \\
+\hline 
+position of layer interfaces              & $z_I$                & $\mbox{m}$                             & $\Delta t$ &  \\
+\hline 
+zonal velocity component               & $u$                   & $\mbox{m}~\mbox{s}^{-1}$       &  $\Delta t$  &  all vertical levels \\
+\hline 
+meridional velocity component       & $v$                    & $\mbox{m}~\mbox{s}^{-1}$       &  $\Delta t$  &  all vertical levels \\
+\hline
+\end{tabular}
+\end{center}
+\caption{The first output should be at the initial condition, $t=0$. The final 
+  output should be at the end of the test, at $t=15~\mbox{days}$.  All vertical grid points should be sampled.}
+\label{table:metricsShear}
+\end{table}
+
+\section{Results}
+\subsection{LANL MPAS-Ocean}
+\subsection{NCAR POP}
+\subsection{GFDL MOM6}
+
+
+

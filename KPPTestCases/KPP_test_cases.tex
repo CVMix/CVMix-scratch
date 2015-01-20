@@ -99,15 +99,26 @@
 
 This document provides details of various one-dimensional column tests
 made to examine the KPP \citep{LargeKPP} boundary layer
-parameterization scheme in CVMix.  It is a working document of use for
-testing CVMix/KPP across the MPAS-ocean, MOM, and POP implementations.
-Notably, the primitive equations are time stepped in each of the ocean
-models.  However, the models are configured in two-dimensional (x,y)
-periodic domains so that there are no lateral gradients, thus making
-all dynamics vertical.  Physical and numerical details of CVMix/KPP
-are provided in {\sc Theory and Numerics of the Community Ocean
-  Vertical Mixing (CVMix) Project}, with salient points from this
-document assumed here.
+parameterization scheme provided in CVMix.  The ocean primitive
+equations are time stepped in each of the ocean models MOM6,
+MPAS-ocean, and POP.  However, the models are configured in
+two-dimensional (x,y) periodic domains with only two-points in each
+direction, so that there are no lateral gradients.  Hence, dynamics
+are restricted to the vertical.  Physical and numerical details of
+CVMix/KPP are provided in {\sc Theory and Numerics of the Community
+  Ocean Vertical Mixing (CVMix) Project}, with salient points from
+that document assumed here.
+
+There are no lateral gradients in these column-tests.  Hence,
+evolution of velocity and tracer are one-dimensional in the vertical.
+We generally start the velocity field at zero, so that its evolution
+is initiated by surface stresses.  Likewise, if tracers have a uniform
+initial profile, their evolution is initiated by surface heat or
+salt/water fluxes.  Once a nontrivial vertical profile is established,
+either through boundary fluxes or initial profiles, then evolution is
+impacted by local (downgradient diffusion).  Additionally, when
+buoyancy forcing is negative, tracers are impacted by the non-local
+portion of KPP.
 
 
 \dominitoc

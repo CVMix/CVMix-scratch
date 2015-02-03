@@ -15,8 +15,8 @@ resolution.
 
 \section{Physics of the experiments}
 
-In these test cases, buoyancy is forced at the surface via a surface
-heat flux.  To help develop notation, we express the finite-volume
+In these test cases, buoyancy is forced via a surface heat flux.  To
+help develop notation, we express the finite-volume one-dimensional
 heat equation acting on the top grid cell as
 \begin{equation}
   \mbox{C}_{\mbox{\footnotesize p}} \left(   \frac{\partial  \, (\Theta \, \rho \, \mathrm{d}z )}{\partial t}  \right) =  
@@ -159,8 +159,11 @@ is initialized to the constant value
  S = S_{0}.
 \end{equation}
 There are no salt fluxes through the boundaries, so that salinity
-remains constant throughout these tests.  The temperature is
-initialized with a linear vertical stratification
+remains constant throughout these tests.  Checking that it indeed
+remains constant is a useful means to test that the model code is
+properly conserving both locally and globally the salt content
+\citep{GriffiesPacSchmidtBalaji2001}.  The temperature is initialized
+with a linear vertical stratification
 \begin{subequations}
 \begin{align}
  \Theta(z) &= \Theta_s + \Gamma \, z  
@@ -221,7 +224,7 @@ We assume the following boundary conditions.
 \item {\sc WSwPSBF.C} uses a restoring surface boundary condition
   given by
 \begin{equation}
- Q =  \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}} \, (\Theta - \Theta_{\mbox{\footnotesize restore}} ),
+ Q =  \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}} \, (\Theta_{\mbox{\footnotesize restore}}  - \Theta),
 \label{eq:heat-flux-restoring}
 \end{equation}
  where the restoring temperature is 
@@ -234,16 +237,16 @@ We assume the following boundary conditions.
   w_{\mbox{\footnotesize piston}} = 0.5~\mbox{m}~\mbox{day}^{-1}. 
 \end{equation}
 With these parameters, the restoring boundary condition produces a
-heat flux, per degree temperature deviation $\Theta -
-\Theta_{\mbox{\footnotesize restore}}$, given by
+heat flux, per degree temperature deviation
+$\Theta_{\mbox{\footnotesize restore}} - \Theta$, given by
 \begin{subequations}
 \begin{align}
- \frac{Q}{(\Theta - \Theta_{\mbox{\footnotesize restore}} )} &= \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}}
+ \frac{Q}{(\Theta_{\mbox{\footnotesize restore}} - \Theta )} &= \rho_o \, \mbox{C}_{\mbox{\footnotesize p}} \, w_{\mbox{\footnotesize piston}}
  \\
  &= 23.68~\mbox{W}~\mbox{m}^{-2}~\mbox{K}^{-1}.  
 \end{align}
 \end{subequations}
-That is, with $\Theta - \Theta_{\mbox{\footnotesize restore}} =
+That is, with $\Theta_{\mbox{\footnotesize restore}} - \Theta =
 1~\mbox{K}$, we have $Q = 23.68~\mbox{W}~\mbox{m}^{-2}$.  This heat
 flux will always be non-negative, causing the ocean temperature to
 initially increase quite rapidly as driven by
@@ -358,32 +361,58 @@ cooler.
 \subsection{GFDL-MOM6} 
 
 Figure \ref{fig:WSwPSBF_A_MOM6_SST_bldepth} shows the KPP boundary
-layer depth realized from the MOM6 implementation of CVMix.  Note how
-the boundary layer deepens in time, due to the mechanical forcing that
-eats away at the vertical stratification.  Correspondingly, the SST
-cools as mixing entrains cooler water from below.  There is a notable
-dependence on vertical grid resolution, with deeper boundary layer and
+layer depth realized from the MOM6 implementation of CVMix.  The
+boundary layer deepens in time, due to the mechanical forcing from
+winds that eats away at the vertical stratification.  Correspondingly,
+the SST cools as mixing entrains cooler water from below.  
+
+There is a notable dependence on vertical grid resolution in Figure
+\ref{fig:WSwPSBF_A_MOM6_SST_bldepth}, with deeper boundary layer and
 cooler SST for coarser grids.  The reason for the cooler SST with
 coarser grids is that the KPP vertical diffusivity is directly
 proportional to the boundary layer thickness, which is seen in the
 lower panels of Figure \ref{fig:WSwPSBF_A_MOM6_KPP_diffusivity}.
 Hence, deeper boundary layers produce more vertical mixing of warm
-surface waters with cooler deeper waters, thus producing cooler SSTs.
-This mixing is further seen from the depth profiles of temperature in
-Figure \ref{fig:WSwPSBF_A_MOM6_temp}.  With coarser vertical grids and
-the associated enhanced vertical mixing, there is an enhanced surface
-cooling and deep warming relative to results from the fine vertical
-grids.  Finally, we see the inertial oscillations in the zonal
-velocity shown in Figure \ref{fig:WSwPSBF_A_MOM6_zonal}, with the
-amplitude enhanced as the vertical resolution is refined.
+surface waters with cooler deeper waters, thus producing cooler SSTs
+and warmer interior waters.  This mixing is further seen from the
+depth profiles of temperature in Figure \ref{fig:WSwPSBF_A_MOM6_temp}.
+With coarser vertical grids and the associated enhanced vertical
+mixing, there is an enhanced surface cooling and deep warming relative
+to results from the fine vertical grids.  
+
+Inertial oscillations in the zonal velocity are shown in Figure
+\ref{fig:WSwPSBF_A_MOM6_zonal}.  The amplitude of the oscillations is
+enhanced as the vertical resolution is refined.  The oscillations
+impart an oscillation in the vertical shear, which in turn impacts on
+the boundary layer depth.  This is the primary reason that the
+boundary layer depth shows oscillations in Figure
+\ref{fig:WSwPSBF_A_MOM6_SST_bldepth}.  Note that the boundary layer
+depth oscillations are largest in the coarsest grid with $\Delta z =
+10~\mbox{m}$, largely due to the reasons described next.  
 
 The boundary layer depth is found by an interpolation algorithm, with
-the interpolation accuracy reduced as the grid is coarsened.  Note the
-noise and step-like structure as the grid is coarsened, particularly
-seen for the $\Delta z = 10~\mbox{m}$ grid.  \color{red} We need more
-discussion of the interpolation problems.  Can we implement a better
-scheme?  What about energetic or Ekman constraints?  \color{black}
+the interpolation accuracy reduced as the grid is coarsened.  A
+step-like structure is seen in all grids, with the step size
+corresponding to the discrete depth levels in the model grid, whereby
+the interpolation scheme generally prefers to find a value
+corresponding to the model level itself.\footnote{Can we find a more
+  precise interpretation of these large steps?}  
 
+In general, we may expect problems in this particular test using
+$\Delta z = 10~\mbox{m}$ since the boundary layer depth is initially
+around $20~\mbox{m}$, as inferred from the $\Delta z = 20~\mbox{cm}$
+simulation.  A boundary layer depth of $20~\mbox{m}$ is no more than
+two grid points on the $\Delta z = 10~\mbox{m}$ grid, in which case
+the boundary layer thickness is under-resolved.  For poorly resolved
+boundary layers, the interpolation scheme produces a non-robust
+approximation to the boundary layer depth.  One may consider this
+problem analogous to that of resolving advective tracer transport
+across a poorly resolved front.  We return to this issue of
+under-resolved boundary layers in Section \ref{section:WSwPSBFB} when
+discussing the test case with $Q=100~\mbox{W}~\mbox{m}^{-2}$.  In that
+test, the boundary layer thickness is somewhat less than the present
+test case, so that problems with the $\Delta z = 10~\mbox{m}$ grid are
+even more visible.
 
 %%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[h!t]
@@ -412,10 +441,7 @@ scheme?  What about energetic or Ekman constraints?  \color{black}
   stress and zero surface buoyancy forcing) as realized in MOM6 using
   four different vertical grid resolutions.  The diffusivity is
   centered on the bottom interface of a grid cell, with the first
-  nonzero value at the bottom of the surface cell.  The diffusivity
-  vanishes one cell below the boundary layer: \color{red} why not at
-  the boundary layer depth?  Do we always bias towards one cell
-  deeper? \color{black}.}
+  nonzero value at the bottom of the surface cell.}
 \label{fig:WSwPSBF_A_MOM6_KPP_diffusivity}
 \end{center}
 %\rule{\textwidth}{0.005in}
@@ -431,7 +457,7 @@ scheme?  What about energetic or Ekman constraints?  \color{black}
 \caption[Temperature from MOM6 for WSwPSBF.A ]{\sf Time series for
   temperature in the test case WSwPSBF.A (constant zonal wind stress
   and zero surface buoyancy forcing) as realized in MOM6 using four
-  different vertical grid resolutions.  The temperature is centered on
+  different vertical grid resolutions.  The temperature is located at
   the center of a grid cell, with the first nonzero value at the
   center of the surface cell.}
 \label{fig:WSwPSBF_A_MOM6_temp}
@@ -465,15 +491,14 @@ scheme?  What about energetic or Ekman constraints?  \color{black}
 \section{Results for WSwPSBF.B $(Q=100~\mbox{W}~\mbox{m}^{-2})$}
 \label{section:WSwPSBFB}
 
-We here present results from the three ocean models for the experiment
-WSwPSBF.B, in which there is a constant surface heat flux of
-$Q=100~\mbox{W}~\mbox{m}^{-2}$ along with the constant zonal wind
-stress $\tau^{x} = 0.1~\mbox{N}~\mbox{m}^{-2}$.  Mixing occurs only
-through mechanical forcing from the wind stress.  Given the positive
-buoyancy forcing in this test, the boundary layer does not deepen as
-much as in test WSwPSBF.A discussed in Section \ref{section:WSwPSBFA}.
-This test exhibits less sensitivity to vertical grid spacing than
-WSwPSBF.A.  
+We here present results for the experiment WSwPSBF.B, in which there
+is a constant surface heat flux of $Q=100~\mbox{W}~\mbox{m}^{-2}$
+along with the constant zonal wind stress $\tau^{x} =
+0.1~\mbox{N}~\mbox{m}^{-2}$.  Mixing occurs only through mechanical
+forcing from the wind stress.  Given the positive buoyancy forcing in
+this test, the boundary layer does not deepen as much as in test
+WSwPSBF.A discussed in Section \ref{section:WSwPSBFA}.  This test
+exhibits less sensitivity to vertical grid spacing than WSwPSBF.A.
 
 
 \subsection{GFDL-MOM6} 

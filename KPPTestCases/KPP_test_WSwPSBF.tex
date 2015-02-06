@@ -358,6 +358,26 @@ grid spacing.  Consequently, more heat penetrates to the ocean
 interior when the vertical grid coarsens, and the SST in turn is
 cooler.
 
+\subsection{Remarks on interpolation to determine boundary layer depth}
+\label{subsection:interpolation-difficulties}
+
+The boundary layer depth is found by an interpolation algorithm, with
+the interpolation aiming to determine the depth at which the bulk
+Richardson number becomes larger than a critical value.  Generally,
+the bulk Richardson number is tiny, if not zero, in the boundary
+layer.  When moving downward into the ocean, there is often a large
+jump across from the small value in the boundary layer to a large
+value beneath the boundary layer.  The interpolation problem for
+computing the boundary layer depth is thus quite nontrivial.  Namely,
+the interpolation method must determine the boundary layer depth based
+on interpolating across a sizable jump in the bulk Richardson number
+that spans just two grid points.  Interpolation in this case generally
+finds a boundary layer depth quite close to the grid cell depth.  If
+there is boundary layer evolution, the boundary layer depth will
+exhibit step-like changes, with the step size determined by the
+vertical grid spacing.  We see this behaviour in the following tests.
+
+
 \subsection{GFDL-MOM6} 
 
 Figure \ref{fig:WSwPSBF_A_MOM6_SST_bldepth} shows the KPP boundary
@@ -388,31 +408,13 @@ the boundary layer depth.  This is the primary reason that the
 boundary layer depth shows oscillations in Figure
 \ref{fig:WSwPSBF_A_MOM6_SST_bldepth}.  Note that the boundary layer
 depth oscillations are largest in the coarsest grid with $\Delta z =
-10~\mbox{m}$, largely due to the reasons described next.  
-
-The boundary layer depth is found by an interpolation algorithm, with
-the interpolation accuracy reduced as the grid is coarsened.  A
-step-like structure is seen in all grids, with the step size
-corresponding to the discrete depth levels in the model grid, whereby
-the interpolation scheme generally prefers to find a value
-corresponding to the model level itself.\footnote{Can we find a more
-  precise interpretation of these large steps?}  
-
-In general, we may expect problems in this particular test using
-$\Delta z = 10~\mbox{m}$ since the boundary layer depth is initially
-around $20~\mbox{m}$, as inferred from the $\Delta z = 20~\mbox{cm}$
-simulation.  A boundary layer depth of $20~\mbox{m}$ is no more than
-two grid points on the $\Delta z = 10~\mbox{m}$ grid, in which case
-the boundary layer thickness is under-resolved.  For poorly resolved
-boundary layers, the interpolation scheme produces a non-robust
-approximation to the boundary layer depth.  One may consider this
-problem analogous to that of resolving advective tracer transport
-across a poorly resolved front.  We return to this issue of
-under-resolved boundary layers in Section \ref{section:WSwPSBFB} when
-discussing the test case with $Q=100~\mbox{W}~\mbox{m}^{-2}$.  In that
-test, the boundary layer thickness is somewhat less than the present
-test case, so that problems with the $\Delta z = 10~\mbox{m}$ grid are
-even more visible.
+10~\mbox{m}$, largely due to the reasons described in Section
+\ref{subsection:interpolation-difficulties}.  In general, we may
+expect problems in this particular test using $\Delta z = 10~\mbox{m}$
+since the boundary layer depth is initially around $20~\mbox{m}$, as
+inferred from the $\Delta z = 20~\mbox{cm}$ simulation.  A boundary
+layer depth of $20~\mbox{m}$ is no more than two grid points on the
+$\Delta z = 10~\mbox{m}$ grid.
 
 %%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[h!t]

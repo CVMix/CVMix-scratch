@@ -22,6 +22,9 @@
 \titleformat*{\subparagraph}{\large\bfseries}
 \renewcommand{\familydefault}{\sfdefault}
 
+\newcommand{\bftau}{\mbox{\boldmath $\tau$}}
+
+
 \usepackage{minitoc} 
 \renewcommand{\mtcfont}{\small\sffamily} 
 \renewcommand{\mtcSfont}{\small\sffamily} 
@@ -40,7 +43,7 @@
 \fancyhf{}
 \lhead{\leftmark}
 \rhead{Section \thesection}
-\lfoot{{\sc KPP tests in CVMix}}
+\lfoot{{\sc Column tests of CVMix/KPP}}
 \cfoot{\today}
 \rfoot{Page \thepage}
 \renewcommand{\footrulewidth}{1pt}
@@ -63,7 +66,7 @@
 \makeindex 
 \citeindextrue
 
-\title{\sc Tests of the KPP boundary layer in CVMix}
+\title{\sc Column tests of CVMix/KPP}
 
 \date{\today}
 
@@ -94,31 +97,34 @@
 
 
 \begin{center}
-{\scshape \Large KPP tests in CVMix} 
+{\scshape \Large Column tests of CVMix/KPP} 
 \end{center}
 
-This document provides details of various one-dimensional column tests
-made to examine the KPP \citep{LargeKPP} boundary layer
-parameterization scheme provided in CVMix.  The ocean primitive
-equations are time stepped in each of the ocean models MOM6,
-MPAS-ocean, and POP.  However, the models are configured in
-two-dimensional (x,y) periodic domains with only two-points in each
-direction, so that there are no lateral gradients.  Hence, dynamics
-are restricted to the vertical.  Physical and numerical details of
-CVMix/KPP are provided in {\sc Theory and Numerics of the Community
-  Ocean Vertical Mixing (CVMix) Project}, with salient points from
-that document assumed here.
+This document details tests with the KPP \citep{LargeKPP} boundary
+layer parameterization in CVMix.  The ocean primitive equations are
+time stepped in the ocean models MOM6, MPAS-ocean, and POP, with each
+model having implemented CVMix/KPP.  The models are configured in
+two-dimensional (x,y) periodic domains so that there are no lateral
+gradients.  Furthermore, each uses the same grid spacing and time
+step.  However, time stepping schemes differ, thus precluding bitwise
+answer agreements.  Indeed, answer differences can be far more than
+roundoff, illustrating the sensitivity of the KPP scheme to time
+stepping details.  Physical and numerical aspects of CVMix/KPP are
+provided in {\sc Theory and Numerics of the Community Ocean Vertical
+  Mixing (CVMix) Project}.  Salient points from that document are
+assumed here.
 
-There are no lateral gradients in these column-tests.  Hence,
-evolution of velocity and tracer are one-dimensional in the vertical.
-We generally start the velocity field at zero, so that its evolution
-is initiated by surface stresses.  Likewise, if tracers have a uniform
-initial profile, their evolution is initiated by surface heat or
-salt/water fluxes.  Once a nontrivial vertical profile is established,
-either through boundary fluxes or initial profiles, then evolution is
-impacted by local (downgradient diffusion).  Additionally, when
+As there are no lateral gradients, evolution of velocity and tracer
+are one-dimensional in the vertical.  We generally initialize velocity
+at zero, so that it evolves only when there is a nonzero surface
+stress.  If tracers have a uniform initial profile, their evolution is
+initiated by buoyancy forcing via surface heating.  Once a nontrivial
+vertical profile is established, either through boundary fluxes or the
+initial profile, then evolution is impacted by the local portion of
+KPP realized as downgradient diffusion.  Additionally, when surface
 buoyancy forcing is negative, tracers are impacted by the non-local
-portion of KPP.
+portion of KPP.  The non-local operator redistributes the negative
+surface buoyancy forcing throughout the boundary layer.
 
 
 \dominitoc
@@ -127,8 +133,10 @@ portion of KPP.
 
 \pagenumbering{arabic}
 
-\include{KPP_test_WSwPSBF}
-\include{KPP_test_WSwNSBF}
+\include{KPP_test_common}
+\include{KPP_test_wind_only}
+\include{KPP_test_wind_and_heating}
+\include{KPP_test_cooling}
 
 
 %%%%%%%%%%%%%%%%%%%%%      References     %%%%%%%%%%%%%%%%%%%%%%%%%%%
